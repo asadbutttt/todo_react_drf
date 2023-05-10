@@ -126,15 +126,17 @@
 			}
 			return cookieValue;
 		}
-		const csrftoken = getCookie('csrftoken');
 
+		const csrftoken = getCookie('csrftoken');
 		var activeItem = null;
+		var list_snapshot = [];
 
         buildList()
 
         function buildList(){
             var wrapper = document.getElementById('list-wrapper')
-			wrapper.innerHTML = ''
+			// wrapper.innerHTML = ''
+
             var url = 'http://127.0.0.1:8000/api/task-list/'
 
             fetch(url)
@@ -144,6 +146,13 @@
 
                 var list = data;
                 for (var i in list){
+
+					try{
+						document.getElementById(`data-row-${i}`).remove()
+					}catch(err){
+						
+					}
+
 
 					var title = `<span class='title'>${list[i].title}</span>`
 
@@ -167,6 +176,13 @@
                         `
                     wrapper.innerHTML += item
                 }
+
+				if (list_snapshot.length > list.length){
+					for (var i = list.length; i < list_snapshot.length; i++){
+						document.getElementById(`data-row-${i}`).remove()
+					}
+				}
+				list_snapshot = list
 
 				for (var i in list){
 					var editBtn = document.getElementsByClassName('edit')[i]
