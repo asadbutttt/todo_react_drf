@@ -144,10 +144,18 @@
 
                 var list = data;
                 for (var i in list){
+
+					var title = `<span class='title'>${list[i].title}</span>`
+
+					if(list[i].completed == true){
+						console.log('Strike is true on', list[i])
+						title = `<s class='title'>${list[i].title}</s>`
+					}
+
                     var item = `
                         <div id="data-row-${i}" class="task-wrapper flex-wrapper">
                             <div style="flex:7">
-                                <span class="title">${list[i].title}</span>
+                                ${title}
                             </div>
                             <div style="flex:1">
                                 <button class="btn btn-sm btn-outline-info edit">Edit</button>
@@ -163,16 +171,23 @@
 				for (var i in list){
 					var editBtn = document.getElementsByClassName('edit')[i]
 					var deleteBtn = document.getElementsByClassName('delete')[i]
+					var title = document.getElementsByClassName('title')[i]
 					
 					editBtn.addEventListener('click', (function(item){
 						return function(){
 							editItem(item)
 						}
 					})(list[i]))
-
+					
 					deleteBtn.addEventListener('click', (function(item){
 						return function(){
 							deleteItem(item)
+						}
+					})(list[i]))
+
+					title.addEventListener('click', (function(item){
+						return function(){
+							strikeUnstrike(item)
 						}
 					})(list[i]))
 				}
@@ -182,7 +197,6 @@
         var form = document.getElementById('form-wrapper')
         form.addEventListener('submit', function(e){
             e.preventDefault()
-            console.log('Form submitted')
 
 			var url = 'http://127.0.0.1:8000/api/task-create/'
 
@@ -225,6 +239,23 @@
 				buildList()
 			})
 
+		}
+
+		function strikeUnstrike(item){
+			console.log('Stike called!');
+
+			item.completed =!item.completed
+
+			fetch(`http://127.0.0.1:8000/api/task-update/${item.id}/`, {
+				method: 'POST',
+				headers: {
+					'Content-type': 'application/json',
+					'X-CSRFToken': csrftoken,
+				},
+				body: JSON.stringify({'title': item.title, 'completed': item.completed}),
+			}).then((response)=>{
+				buildList()
+			})
 		}
 
 
